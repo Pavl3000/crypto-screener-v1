@@ -1,0 +1,33 @@
+{
+  "entities": {
+    "SymbolHistory": {
+      "title": "Symbol History",
+      "description": "Historical kline data for a specific symbol",
+      "type": "object",
+      "properties": {
+        "symbol": { "type": "string" },
+        "lastUpdated": { "type": "number" },
+        "klines": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "time": { "type": "number" },
+              "open": { "type": "number" },
+              "high": { "type": "number" },
+              "low": { "type": "number" },
+              "close": { "type": "number" }
+            }
+          }
+        }
+      },
+      "required": ["symbol", "klines", "lastUpdated"]
+    }
+  },
+  "firestore": {
+    "klines/{symbol}": {
+      "schema": "SymbolHistory",
+      "description": "Stores up to 3 days of 1m kline data for a symbol"
+    }
+  }
+}

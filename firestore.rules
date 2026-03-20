@@ -1,0 +1,21 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Allow anyone to read klines for now as it's public market data
+    // In a production app, you might want to restrict this
+    match /klines/{symbol} {
+      allow read: if true;
+      allow write: if false; // Only server should write, but we don't have admin SDK here easily
+    }
+    
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

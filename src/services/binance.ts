@@ -34,8 +34,20 @@ export class BinanceService {
       .slice(0, limit);
   }
 
-  static async getKlines(symbol: string, interval: string = '1m', limit: number = 500): Promise<CandleData[]> {
-    const response = await fetch(`${this.BASE_URL}/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`);
+  static async getKlines(symbol: string, interval: string = '1m', limit: number = 4320): Promise<CandleData[]> {
+    // For 3 days of history, we fetch from our server API which caches in Firestore
+    if (limit >= 4320) {
+      try {
+        const response = await fetch(`/api/history/${symbol}`);
+        if (response.ok) {
+          return await response.json();
+        }
+      } catch (error) {
+        console.error('Failed to fetch from server API, falling back to Binance:', error);
+      }
+    }
+
+    const response = await fetch(`${this.BASE_URL}/klines?symbol=${symbol}&interval=${interval}&limit=${Math.min(limit, 1000)}`);
     const data = await response.json();
     
     return data.map((d: any) => ({

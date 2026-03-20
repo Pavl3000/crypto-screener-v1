@@ -10,6 +10,7 @@ export default function App() {
   const [klines, setKlines] = useState<CandleData[]>([]);
   const [liveCandle, setLiveCandle] = useState<CandleData | undefined>();
   const [loading, setLoading] = useState(true);
+  const [chartLoading, setChartLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
@@ -23,16 +24,38 @@ export default function App() {
         setSelectedSymbol(topCoins[0].symbol);
       }
       
+      setChartLoading(true);
       const history = await BinanceService.getKlines(selectedSymbol);
       setKlines(history);
       setError(null);
     } catch (err) {
-      setError('Failed to fetch data from Binance');
+      setError('Failed to fetch data');
       console.error(err);
     } finally {
       setLoading(false);
+      setChartLoading(false);
     }
   }, [selectedSymbol]);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        setChartLoading(true);
+        const history = await BinanceService.getKlines(selectedSymbol);
+        setKlines(history);
+        setError(null);
+      } catch (err) {
+        setError('Failed to fetch history');
+        console.error(err);
+      } finally {
+        setChartLoading(false);
+      }
+    };
+    
+    if (!loading) {
+      fetchHistory();
+    }
+  }, [selectedSymbol, loading]);
 
   useEffect(() => {
     fetchData();
@@ -99,6 +122,14 @@ export default function App() {
 
         {/* Chart Area */}
         <section className="flex-1 relative">
+          {chartLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px] z-20">
+              <div className="flex flex-col items-center gap-3">
+                <Loader2 className="w-6 h-6 animate-spin text-emerald-500" />
+                <span className="text-[10px] font-mono text-zinc-400 uppercase tracking-[0.2em]">Loading 3-Day History...</span>
+              </div>
+            </div>
+          )}
           {error ? (
             <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/50 backdrop-blur-sm z-50">
               <div className="text-center">
