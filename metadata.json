@@ -1,0 +1,5 @@
+{
+  "name": "CryptoVolume Screener",
+  "description": "A real-time cryptocurrency screener using Binance API and TradingView Lightweight Charts, featuring 1m timeframes and 24h volume rankings.",
+  "requestFramePermissions": []
+}
